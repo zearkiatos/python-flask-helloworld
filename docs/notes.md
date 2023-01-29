@@ -29,4 +29,8 @@
 `export FLASK_APP=main.py`
 
 *Next,  we need to run the follow command
-`flask run --host=localhost`
+`flask run`
+
+- Activate debug mode
+
+`export FLASK_DEBUG=1`
