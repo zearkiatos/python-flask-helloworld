@@ -1,4 +1,4 @@
-from flask import Flask
+from flask import Flask, request
 
 app = Flask(__name__)
 
@@ -6,6 +6,11 @@ app = Flask(__name__)
 @app.route("/")
 def hello():
     return "Hello World! 👋 🌎 Flask 🌶️"
+
+@app.route("/user-ip")
+def user_ip():
+    user_ip = request.remote_addr
+    return "Your IP es {}".format(user_ip)
 
 
 if __name__ == "__main__":
