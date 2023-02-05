@@ -1,11 +1,13 @@
 version: "3.9"
 
 services:
-  service:
+  web:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: python-flask-helloworld
+    volumes:
+      - ".:/app"
     env_file:
       - .env
     ports:
