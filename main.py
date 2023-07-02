@@ -1,6 +1,9 @@
 from flask import Flask, request, make_response, redirect, render_template, abort, session
 from flask_bootstrap import Bootstrap
 import os
+from flask_wtf import FlaskForm
+from wtforms.fields import StringField, PasswordField, SubmitField
+from wtforms.validators import DataRequired
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -8,6 +11,12 @@ bootstrap = Bootstrap(app)
 app.config['SECRET_KEY'] = os.environ.get('SUPER_SECRET')
 
 todos = ['Practice Python', 'Practice Javascript', 'Practice ReactJS']
+
+class LoginForm (FlaskForm):
+    username = StringField('Username', validators=[DataRequired()])
+    password = PasswordField('Password',  validators=[DataRequired()])
+    submit = SubmitField('Submit')
+
 
 NOT_FOUND = 404
 INTERNAL_SERVER_ERROR=500
@@ -52,9 +61,11 @@ def user_ip():
 def user_ip_page():
     try:
         user_ip = session.get("user_ip")
+        login_form = LoginForm()
         context = {
             'user_ip': user_ip,
-            'todos': todos
+            'todos': todos,
+            'login_form': login_form
         }
         return render_template("hello.html", **context)
     except Exception:
