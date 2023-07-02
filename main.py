@@ -1,8 +1,11 @@
-from flask import Flask, request, make_response, redirect, render_template, abort
+from flask import Flask, request, make_response, redirect, render_template, abort, session
 from flask_bootstrap import Bootstrap
+import os
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
+
+app.config['SECRET_KEY'] = os.environ.get('SUPER_SECRET')
 
 todos = ['Practice Python', 'Practice Javascript', 'Practice ReactJS']
 
@@ -23,7 +26,7 @@ def internal_server_error(error):
 def index():
     user_ip = request.remote_addr
     response = make_response(redirect("/user-ip-page"))
-    response.set_cookie("user_ip", user_ip)
+    session['user_ip'] = user_ip
 
     return response
 
@@ -48,7 +51,7 @@ def user_ip():
 @app.route("/user-ip-page")
 def user_ip_page():
     try:
-        user_ip = request.cookies.get("user_ip")
+        user_ip = session.get("user_ip")
         context = {
             'user_ip': user_ip,
             'todos': todos

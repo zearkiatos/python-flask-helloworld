@@ -34,3 +34,7 @@
 - Activate debug mode
 
 `export FLASK_DEBUG=1`
+
+* Declarate an specific environment
+
+`export FLASK_ENV=development`
