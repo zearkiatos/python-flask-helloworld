@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response, redirect, render_template, abort, session
+from flask import Flask, request, make_response, redirect, render_template, abort, session, url_for
 from flask_bootstrap import Bootstrap
 import os
 from flask_wtf import FlaskForm
@@ -12,6 +12,7 @@ app.config['SECRET_KEY'] = os.environ.get('SUPER_SECRET')
 
 todos = ['Practice Python', 'Practice Javascript', 'Practice ReactJS']
 
+
 class LoginForm (FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
     password = PasswordField('Password',  validators=[DataRequired()])
@@ -19,12 +20,13 @@ class LoginForm (FlaskForm):
 
 
 NOT_FOUND = 404
-INTERNAL_SERVER_ERROR=500
+INTERNAL_SERVER_ERROR = 500
 
 
 @app.errorhandler(NOT_FOUND)
 def not_found(error):
     return render_template('404.html', error=error)
+
 
 @app.errorhandler(INTERNAL_SERVER_ERROR)
 def internal_server_error(error):
@@ -34,8 +36,9 @@ def internal_server_error(error):
 @app.route("/")
 def index():
     user_ip = request.remote_addr
+    if not session['user_ip']: 
+        session['user_ip'] = user_ip
     response = make_response(redirect("/user-ip-page"))
-    session['user_ip'] = user_ip
 
     return response
 
@@ -51,7 +54,7 @@ def hello():
 @app.route("/user-ip")
 def user_ip():
     try:
-        user_ip = request.cookies.get("user_ip")
+        user_ip = session.get("user_ip")
         return "Your IP es {}".format(user_ip)
     except Exception:
         abort(INTERNAL_SERVER_ERROR)
@@ -61,20 +64,42 @@ def user_ip():
 def user_ip_page():
     try:
         user_ip = session.get("user_ip")
-        login_form = LoginForm()
         context = {
             'user_ip': user_ip,
             'todos': todos,
-            'login_form': login_form
         }
         return render_template("hello.html", **context)
     except Exception:
         abort(INTERNAL_SERVER_ERROR)
 
+
+@app.route("/login", methods=['GET', 'POST'])
+def login():
+    try:
+        user_ip = session.get("user_ip")
+        login_form = LoginForm()
+        username = session.get('username')
+        context = {
+            'user_ip': user_ip,
+            'todos': todos,
+            'login_form': login_form,
+            'username': username
+        }
+
+        if login_form.validate_on_submit():
+            username = login_form.username.data
+            session['username'] = username
+
+            return url_for('login')
+
+        return render_template("login.html", **context)
+    except Exception:
+        abort(INTERNAL_SERVER_ERROR)
+
+
 @app.route("/force-internal-server-error")
 def force_internal_server_error():
     abort(INTERNAL_SERVER_ERROR)
-
 
 
 if __name__ == "__main__":
