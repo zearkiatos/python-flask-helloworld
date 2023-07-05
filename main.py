@@ -4,6 +4,7 @@ import os
 from flask_wtf import FlaskForm
 from wtforms.fields import StringField, PasswordField, SubmitField
 from wtforms.validators import DataRequired
+import unittest
 
 app = Flask(__name__)
 bootstrap = Bootstrap(app)
@@ -23,6 +24,13 @@ NOT_FOUND = 404
 INTERNAL_SERVER_ERROR = 500
 
 
+@app.cli.command()
+def test():
+    tests = unittest.TestLoader().discover('tests')
+    unittest.TextTestRunner().run(tests)
+    pass
+
+
 @app.errorhandler(NOT_FOUND)
 def not_found(error):
     return render_template('404.html', error=error)
@@ -36,7 +44,7 @@ def internal_server_error(error):
 @app.route("/")
 def index():
     user_ip = request.remote_addr
-    if not session.get('user_ip'): 
+    if not session.get('user_ip'):
         session['user_ip'] = user_ip
     response = make_response(redirect("/user-ip-page"))
 
