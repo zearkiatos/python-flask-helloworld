@@ -1,4 +1,4 @@
-from flask import Flask, request, make_response, redirect, render_template, abort, session, url_for
+from flask import Flask, request, make_response, redirect, render_template, abort, session, url_for, flash
 from flask_bootstrap import Bootstrap
 import os
 from flask_wtf import FlaskForm
@@ -36,7 +36,7 @@ def internal_server_error(error):
 @app.route("/")
 def index():
     user_ip = request.remote_addr
-    if not session['user_ip']: 
+    if not session.get('user_ip'): 
         session['user_ip'] = user_ip
     response = make_response(redirect("/user-ip-page"))
 
@@ -90,7 +90,8 @@ def login():
             username = login_form.username.data
             session['username'] = username
 
-            return url_for('login')
+            flash('User saved successful')
+            return redirect(url_for('login'))
 
         return render_template("login.html", **context)
     except Exception:
